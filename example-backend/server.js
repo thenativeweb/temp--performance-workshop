@@ -9,7 +9,7 @@ const cors = require('cors');
 
 const app = express();
 const port = 4000;
-const delay = 200;
+const delay = 1000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -43,6 +43,21 @@ app.post('/messages', (req, res) => {
 	});
 });
 
+let latestSearch = 'No searches yet.';
+
+app.post('/search', (req, res) => {
+	setTimeout(() => {
+		latestSearch = req.body.query;
+
+		res.send(
+			messages.filter(
+				(message) => message.text.toLowerCase().includes(req.body.query.toLowerCase()),
+			),
+		);
+	}, delay);
+});
+
 app.listen(port, () => {
 	console.log(`App listening on port ${port}`)
 });
+
