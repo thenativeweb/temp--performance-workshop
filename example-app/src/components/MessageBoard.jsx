@@ -1,5 +1,7 @@
+import React, { useMemo } from 'react';
 import { sortMessages } from '../utils/sortMessages';
 import styled from 'styled-components';
+import { Message } from './Message';
 
 const Container = styled.div`
 	display: flex;
@@ -28,43 +30,32 @@ const Headline = styled.h2`
 	text-align: left;
 `;
 
-const MessageContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: stretch;
-	background-color: #222;
-	border-radius: 10px;
-	padding: 1rem;
-`;
-
-const MessageAuthor = styled.div`
-	font-weight: bold;
-`;
-
-const MessageText = styled.p`
-	border-left: 1px solid #444;
-	padding-left: 1rem;
-	margin-left: .5rem;
-`;
-
 const MessageBoard = ({
 	messages,
 	config,
 }) => {
-	const sortedMessages = sortMessages(messages);
-	const hasMessages = sortedMessages.length > 0;
-	const newestMessage = sortedMessages.at(0);
-	const olderMessages = sortedMessages.slice(1);
+	//const startTime = Date.now();
 
-	const Message = ({ message }) => {
-		return (
-			<MessageContainer>
-				<MessageAuthor>@ { message.author }</MessageAuthor>
-				<MessageText>{ message.text }</MessageText>
-			</MessageContainer>
-		)
-	};
+	//const logElapsedTime = () => {
+	//	console.log(Date.now() - startTime);
+	//}
+
+	//const sortedMessages = sortMessages(messages);
+
+	// logElapsedTime();
+
+	const hasMessages = useMemo(
+		() => messages.length > 0,
+		[ messages ],
+	);
+	const newestMessage = useMemo(
+		() => messages.at(0),
+		[ messages ],
+	);
+	const olderMessages = useMemo(
+		() => messages.slice(1),
+		[ messages ],
+	);
 
 	if (!hasMessages) {
 		return <p>There are no messages yet :/</p>
@@ -77,7 +68,12 @@ const MessageBoard = ({
 				<Messages>
 					{
 						[newestMessage, ...olderMessages].map(
-							(message) => <Message message={message} config={config} />
+							(message) => (
+								<Message
+									key={message.author + message.text}
+									message={message}
+								/>
+							)
 						)
 					}
 				</Messages>
@@ -95,7 +91,12 @@ const MessageBoard = ({
 			<Messages>
 				{
 					olderMessages.map(
-						(message) => <Message message={message} />
+						(message) => (
+							<Message
+								key={message.author + message.text}
+								message={message}
+							/>
+						)
 					)
 				}
 			</Messages>
@@ -103,6 +104,8 @@ const MessageBoard = ({
 	);
 };
 
+const MemoizedMessageBoard = React.memo(MessageBoard);
+
 export {
-	MessageBoard,
+	MemoizedMessageBoard as MessageBoard,
 };
