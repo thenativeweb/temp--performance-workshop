@@ -3,7 +3,7 @@ import { Logo } from '../components/Logo';
 import { MessageBoard } from '../components/MessageBoard';
 import { Profile } from '../components/Profile';
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Layout = styled.div`
 	width: 100vw;
@@ -65,21 +65,44 @@ const MessageBoardPage = () => {
 		role: "Supervisor"
 	});
 
-	// TODO: fetch messages from server
-	const messages = [
-		{
-			author: "Grace Hopper",
-			text: "Found a bug",
+	const [ messages, setMessages ] = useState([]);
+
+	useEffect(
+		() => {
+			fetch('http://localhost:4000/messages').
+			then(
+				response => response.json()
+			).
+			then(
+				data => setMessages(data)
+			);
 		},
-		{
-			author: "Grace Hopper",
-			text: "Optimized the COBOL libraries",
-		},
-		{
-			author: "Adele Goldberg",
-			text: "Fixed a compiler bug",
-		},
-	];
+		[]
+	);
+
+	const handleMessageSent = ({ profile, text }) => {
+		const payload = {
+			author: profile.userName,
+			text,
+		};
+
+		fetch('http://localhost:4000/messages', {
+			method: 'post',
+			body: JSON.stringify(payload),
+			headers: {
+				'Content-Type': 'application/json',
+			}
+		}).
+		then(
+			() => fetch('http://localhost:4000/messages')
+		).
+		then(
+			response => response.json()
+		).
+		then(
+			data => setMessages(data)
+		);
+	};
 
 	const config = {
 		showTags: true,
@@ -108,7 +131,10 @@ const MessageBoardPage = () => {
 							(updatedProfile) => setProfile(updatedProfile)
 						}
 					/>
-					<Composer />
+					<Composer
+						profile={ profile }
+						onMessageSent={ handleMessageSent }
+					/>
 				</Cards>
 			</Sidebar>
 		</Layout>
