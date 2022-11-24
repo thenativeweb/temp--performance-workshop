@@ -1,89 +1,70 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
-const NestedComponent = () => {
-	console.log('NestedComponent');
+const fetchMessages = async () => {
+	const response = await fetch('http://localhost:4000/messages');
 
-	return <p>Hi!</p>;
+	return await response.json();
 };
 
-//const MemoizedNestedComponent = React.memo(NestedComponent);
+const makeSuspendable = (promise) => {
+	let status = 'pending';
+	let result = undefined;
+	let error = undefined;
 
-const CounterDisplay = ({ url, counterValue }) => {
-	console.log('CounterDisplay');
+	const wrappedPromise =
+		promise.
+		then(
+			(promiseResult) => {
+				result = promiseResult;
+				status = 'resolved';
+			}
+		).
+		catch(
+			(promiseError) => {
+				error = promiseError;
+				status = 'rejected';
+			}
+		);
 
-	useEffect(
-		() => {
-			fetch(url)
+	const read = () => {
+		switch (status) {
+			case 'pending':
+				throw wrappedPromise;
+			case 'rejected':
+				throw error;
+			case 'resolved':
+				return result;
+		}
+	};
 
-			// ...
-		},
-		[ counterValue ],
-	)
+	return { read };
+}
 
+const Messages = ({ messages }) => {
 	return (
 		<>
-			<p
-				style={{
-					fontWeight: isBold ? 600 : 400,
-				}}
-			>{ JSON.stringify(counterValue) }</p>
-			<NestedComponent />
+			{
+				messages.read().map(
+					(message) => <p>{ JSON.stringify(message) }</p>
+				)
+			}
 		</>
 	);
-};
-
-const MemoizedCounterDisplay = React.memo(CounterDisplay);
-
-const config = {
-	api: {
-		baseUrl: "myAwesomeServer.eu",
-		useTls: true,
-	},
-	ui: {
-		counterDisplay: {
-			requestPath: '/update-counter',
-			displayBold: false,
-		}
-	}
-};
+}
 
 const PlaygroundPage = () => {
-	console.log('PlaygroundPage');
-
-	const [ value, setValue ] = useState(0);
-	const handleButtonClicked = useCallback(
-		() => {
-			setValue(value + 1);
-		},
-		[ value, setValue ]
-	);
-
-
-	const url = useMemo(
-		() => `http://${config.api.baseUrl}${config.ui.counterDisplay.requestPath}`,
-		[ config.api.baseUrl, config.ui.counterDisplay.requestPath ],
-	);
+	const messages = makeSuspendable(fetchMessages());
 
 	return (
 		<>
-			<h3>Playground</h3>
-			<button type="button" onClick={ handleButtonClicked }>
-				Increase
-			</button>
-			<MemoizedCounterDisplay
-				url={ url }
-				counterValue={ value }
-			/>
-			{ // first rendering
-				[1,2,3].map(
-					num => <p key={ num }>{ num }</p>
-				)
-			}
-			{ // first rendering
-				[1,4,3].map(
-					num => <p key={ num }>{ num }</p>
-				)
-			}
+			<h3>Messages</h3>
+			<Suspense
+				fallback={
+					<p>Loading...</p>
+				}
+			>
+				<Messages messages={ messages } />
+			</Suspense>
 		</>
 	)
 };

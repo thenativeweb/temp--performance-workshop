@@ -9,7 +9,7 @@ const cors = require('cors');
 
 const app = express();
 const port = 4000;
-const delay = 1000;
+const delay = 4000;
 
 app.use(cors());
 app.use(bodyParser.json());

@@ -1,29 +1,61 @@
+const read = () => {
+	//throw new Error('Help!');
 
-let outSideVariable = "test";
+	throw Promise.resolve();
+};
 
-function capitalize(aString) {
-	const [ firstLetter, ...rest ] = aString;
-
-	return [ firstLetter.toUpperCase(), ...rest ].join('');
+const foo = () => {
+	return `The data is: ${read()}`;
 }
 
-let testInput = 'please capitalize this';
+const bar = () => {
+	return `I am a parent component, and ${foo()}`;
+};
 
-console.log(capitalize(testInput));
-console.log(testInput);
+const suspense = (actual, fallback) => () => {
+	try {
+		return actual();
+	} catch (ex) {
+		if (ex instanceof Promise) {
+			return fallback();
+		}
 
-let counter = 0;
+		throw ex;
+	}
+};
 
-function incrementCounter() {
-	counter += 1;
+const errorBoundary = (actual, fallback) => {
+	try {
+		return actual();
+	} catch (ex) {
+		if (ex instanceof Promise) {
+			throw ex;
+		}
+
+		return fallback();
+	}
 }
 
-console.log(counter);
+const baz = () => errorBoundary(
+	suspense(
+		bar,
+		() => 'no data :(',
+	),
+	() => 'an error occurred!',
+);
 
-incrementCounter();
+console.log(baz());
 
-console.log(counter);
+/*
+console.log(baz());
+console.log((() => bar())());
+console.log(bar());
+console.log((() => foo())());
+console.log(foo());
+console.log((() => 42)());
+console.log(42);
 
-incrementCounter();
-
-console.log(counter);
+console.log(baz());
+console.log((() => () => foo())()());
+console.log((() => () => () => 42)()()());
+*/
