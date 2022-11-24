@@ -67,7 +67,7 @@ const MessageBoard = ({
 	};
 
 	if (!hasMessages) {
-		return <p>There are no messages yet :/</p>
+		return <p>There are no messages yet, be the first to post one!</p>
 	}
 
 	if (!config.highlightNewestMessage) {
