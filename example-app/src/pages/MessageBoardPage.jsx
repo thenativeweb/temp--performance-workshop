@@ -1,9 +1,11 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 import { Composer } from '../components/Composer';
 import { Logo } from '../components/Logo';
 import { MessageBoard } from '../components/MessageBoard';
 import { Profile } from '../components/Profile';
-import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { sortMessages } from '../utils/sortMessages';
+//import { config } from '../config';
 
 const Layout = styled.div`
 	width: 100vw;
@@ -66,6 +68,10 @@ const MessageBoardPage = () => {
 	});
 
 	const [ messages, setMessages ] = useState([]);
+	const setMessagesSorted = useCallback(
+		(unsortedMessages) => setMessages(sortMessages(unsortedMessages)),
+		[ setMessages ],
+	);
 
 	useEffect(
 		() => {
@@ -74,7 +80,7 @@ const MessageBoardPage = () => {
 				response => response.json()
 			).
 			then(
-				data => setMessages(data)
+				data => setMessagesSorted(data)
 			);
 		},
 		[]
@@ -94,20 +100,29 @@ const MessageBoardPage = () => {
 			}
 		}).
 		then(
-			() => fetch('http://localhost:4000/messages')
+			() => {
+				setMessages([ payload, ...messages ]);
+
+				return fetch('http://localhost:4000/messages');
+			}
 		).
 		then(
 			response => response.json()
 		).
 		then(
-			data => setMessages(data)
+			data => setMessagesSorted(data)
 		);
 	};
 
-	const config = {
-		showTags: true,
-		highlightNewestMessage: true,
-	};
+	const config = useMemo(
+		() => {
+			return {
+				showTags: true,
+				highlightNewestMessage: true,
+			};
+		},
+		[],
+	);
 
 	return (
 		<Layout>
