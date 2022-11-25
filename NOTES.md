@@ -75,7 +75,7 @@
 
 ## day 2
 
-# react contexts
+### react contexts
 - benefits of contexts
   - an easy way to pass data
   - a form of loose coupling
