@@ -6,7 +6,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: stretch;
   padding: 1rem;
-
+  
   border: 1px solid #222;
   border-radius: 10px;
 `;
@@ -33,46 +33,46 @@ const Button = styled.button`
   background-color: #222;
   color: inherit;
   padding: 0.5rem 1rem;
-
-  transition: background-color 0.2s ease-out;
-
-  &:hover {
-    background-color: #2f2f2f;
-  }
+    
+    transition: background-color 0.2s ease-out;
+    
+    &:hover {
+      background-color: #2f2f2f;
+    }
 `;
 
 const Composer = ({
-	profile,
-	onMessageSent,
+  profile,
+  onMessageSent,
 }) => {
-	const [ messageText, setMessageText ] = useState('');
-	const isMessageEmpty = messageText.length === 0;
+  const [ messageText, setMessageText ] = useState('');
+  const isMessageEmpty = messageText.length === 0;
 
-	return (
-		<Container>
-			<h3>Compose</h3>
-			<Input
-				value={messageText}
-				onChange={(event) => setMessageText(event.target.value)}
-				placeholder="Write a new message"
-			/>
-			<Buttons>
-				<Button
-					onClick={
-						() => {
-							onMessageSent({ profile, text: messageText });
-							setMessageText('');
-						}
-					}
-					disabled={isMessageEmpty}
-				>
-					Send
-				</Button>
-			</Buttons>
-		</Container>
-	)
+  return (
+    <Container>
+      <h3>Compose</h3>
+      <Input
+        value={messageText}
+        onChange={(event) => setMessageText(event.target.value)}
+        placeholder="Write a new message"
+      />
+      <Buttons>
+        <Button
+          onClick={
+            () => {
+              onMessageSent({ profile, text: messageText });
+              setMessageText('');
+            }
+          }
+          disabled={isMessageEmpty}
+        >
+          Send
+        </Button>
+      </Buttons>
+    </Container>
+  )
 };
 
 export {
-	Composer,
+  Composer,
 };

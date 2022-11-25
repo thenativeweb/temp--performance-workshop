@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense } from 'react';
 
 const fetchMessages = async () => {
 	const response = await fetch('http://localhost:4000/messages');
@@ -17,13 +17,13 @@ const makeSuspendable = (promise) => {
 			(promiseResult) => {
 				result = promiseResult;
 				status = 'resolved';
-			}
+			},
 		).
 		catch(
 			(promiseError) => {
 				error = promiseError;
 				status = 'rejected';
-			}
+			},
 		);
 
 	const read = () => {
@@ -52,23 +52,23 @@ const Messages = ({ messages }) => {
 	);
 }
 
-const PlaygroundPage = () => {
+const SuspensePage = () => {
 	const messages = makeSuspendable(fetchMessages());
 
 	return (
 		<>
-			<h3>Messages</h3>
+			<h3>Playground</h3>
 			<Suspense
 				fallback={
 					<p>Loading...</p>
 				}
 			>
-				<Messages messages={ messages } />
+				<Messages messages={ messages }/>
 			</Suspense>
 		</>
-	)
+	);
 };
 
 export {
-	PlaygroundPage,
+	SuspensePage,
 };

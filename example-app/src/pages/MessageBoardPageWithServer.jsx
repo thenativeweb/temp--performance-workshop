@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Composer } from '../components/Composer';
 import { Logo } from '../components/Logo';
 import { MessageBoard } from '../components/MessageBoard';
 import { Profile } from '../components/Profile';
@@ -45,17 +46,67 @@ const Headline = styled.h2`
   margin-bottom: 0;
 `;
 
-const MessageBoardPage = () => {
+const Cards = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  
+  & > :not(:first-child) {
+    margin-top: 1rem;
+  }
+`;
+
+const MessageBoardPageWithServer = () => {
   const [ profile, setProfile ] = useState({
     userName: "Margaret Hamilton",
     accountType: "Ultimate",
     bio: "American computer scientist, systems engineer, and business owner. Ex director of the Software Engineering Division of the MIT Instrumentation Laboratory.",
     role: "Supervisor"
   });
+  const [ messages, setMessages ] = useState([]);
 
   const config = {
     showTags: true,
-    highlightNewestMessage: true,
+    highlightNewestCommit: true,
+    compactCommits: false,
+  };
+
+  useEffect(
+    () => {
+      fetch('http://localhost:4000/messages').
+      then(
+        response => response.json()
+      ).
+      then(
+        data => setMessages(data)
+      );
+    },
+    []
+  );
+
+  const onMessageSent = ({ profile, text }) => {
+    const payload = {
+      author: profile.userName,
+      text,
+    };
+
+    fetch('http://localhost:4000/messages', {
+      method: 'post',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).
+    then(
+      () => fetch('http://localhost:4000/messages')
+    ).
+    then(
+      response => response.json()
+    ).
+    then(
+      data => setMessages(data)
+    );
   };
 
   return (
@@ -67,36 +118,29 @@ const MessageBoardPage = () => {
       <Content>
         <MessageBoard
           config={config}
-          messages={[
-            {
-              author: "Grace Hopper",
-              text: "Found a bug",
-            },
-            {
-              author: "Grace Hopper",
-              text: "Optimized the COBOL libraries",
-            },
-            {
-              author: "Adele Goldberg",
-              text: "Fixed a compiler bug",
-            },
-          ]}
+          messages={messages}
         />
       </Content>
       <Sidebar>
         <h2>Your Profile</h2>
-        <Profile
-          config={config}
-          profile={profile}
-          onProfileEdited={
-            (updatedProfile) => setProfile(updatedProfile)
-          }
-        />
+        <Cards>
+          <Profile
+            config={config}
+            profile={profile}
+            onProfileEdited={
+              (updatedProfile) => setProfile(updatedProfile)
+            }
+          />
+          <Composer
+            profile={profile}
+            onMessageSent={onMessageSent}
+          />
+        </Cards>
       </Sidebar>
     </Layout>
   )
 };
 
 export {
-  MessageBoardPage,
+  MessageBoardPageWithServer,
 };

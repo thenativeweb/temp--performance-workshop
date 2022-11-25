@@ -9,7 +9,7 @@ const root = createRoot(container);
 
 root.render(
   <>
-    <GlobalStyle />
+    <GlobalStyle/>
     <BrowserRouter>
       <App />
     </BrowserRouter>

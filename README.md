@@ -1,8 +1,12 @@
-# Example app
+# performance workshop
 
-This app has a bunch of performance problems!
+This repository contains notes from the workshop and an example app, that shows
+different performance optimization techniques.
 
-See if you can fix them all.
+In the [`./example-app/src/pages`](./example-app/src/pages) directory, you can
+find several pages that illustrate the various concepts.
+
+[NOTES.md](./NOTES.md) contains the workshop notes.
 
 ## Starting the app
 
